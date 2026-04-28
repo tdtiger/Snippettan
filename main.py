@@ -1,46 +1,82 @@
 import sys
 import json
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QFrame, QScrollArea, QLineEdit, QTextEdit, QDialog, QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QScrollArea, QLineEdit, QTextEdit, QDialog, QPushButton, QMenu, QMessageBox
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
 class SnippetCard(QFrame):
-    def __init__(self, title, code, tags):
+    def __init__(self, title, code, tags, on_tag_click, on_edit, on_delete):
         super().__init__()
         self.code = code
+        self.on_tag_click = on_tag_click
+        self.on_edit = on_edit
+        self.on_delete = on_delete
         layout = QVBoxLayout()
 
         self.title = QLabel(title)
-        self.title.setStyleSheet("font-weight: bold; font-size: 14px;")
+        self.title.setStyleSheet("""
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 4px;
+        """)
         layout.addWidget(self.title)
 
         self.code_label = QLabel(code)
         self.code_label.setFont(QFont("Courier New"))
-        self.code_label.setStyleSheet("color: #333;")
+        self.code_label.setStyleSheet("""
+            color: #333;
+            background: #f8f8f8;
+            padding: 6px;
+            border-radius: 4px;
+        """)
         self.code_label.setWordWrap(True)
         layout.addWidget(self.code_label)
 
-        self.tag_label = QLabel(" ".join(tags))
-        self.tag_label.setStyleSheet("color: #888; font-size: 12px;")
-        layout.addWidget(self.tag_label)
+        tag_layout = QHBoxLayout()
+        for tag in tags:
+            tag_label = QLabel(tag)
+            tag_label.setStyleSheet("""
+                background: #eee;
+                border-radius: 6px;
+                padding: 2px 6px;
+                font-size: 11px;
+                color: #555;
+            """)
+            tag_label.setCursor(Qt.CursorShape.PointingHandCursor)
+            tag_label.mousePressEvent = lambda e, t = tag: self.on_tag_click(t)
+            tag_layout.addWidget(tag_label)
+        tag_layout.addStretch()
+        layout.addLayout(tag_layout)
 
         self.setLayout(layout)
+        self.setObjectName("card")
         self.setStyleSheet("""
-            QFrame {
+            QFrame#card {
                 border: 1px solid #ddd;
                 border-radius: 10px;
                 padding: 10px;
                 background: white;
             }
-            QFrame:hover{
+            QFrame#card:hover{
                 background: #f5f5f5;
             }
         """)
 
     def mousePressEvent(self, event):
-        clipboard = QApplication.clipboard()
-        clipboard.setText(self.code)
-        print("Copied!")
+        if event.button() == Qt.MouseButton.LeftButton:
+            clipboard = QApplication.clipboard()
+            clipboard.setText(self.code)
+            print("Copied!")
+        elif event.button() == Qt.MouseButton.RightButton:
+            menu = QMenu()
+            edit_action = menu.addAction("編集")
+            delete_action = menu.addAction("削除")
+            action = menu.exec(event.globalPosition().toPoint())
+
+            if action == edit_action:
+                self.on_edit()
+            elif action == delete_action:
+                self.on_delete()
 
 class AppDialog(QDialog):
     def __init__(self):
@@ -93,6 +129,7 @@ class MainWindow(QWidget):
 
         container = QWidget()
         self.container_layout = QVBoxLayout(container)
+        self.container_layout.setSpacing(12)
 
         self.data = self.load_data()
 
@@ -125,7 +162,8 @@ class MainWindow(QWidget):
                 widget.setParent(None)
 
         for s in data:
-            self.container_layout.addWidget(SnippetCard(s["title"], s["code"], s["tags"]))
+            index = self.data.index(s)
+            self.container_layout.addWidget(SnippetCard(s["title"], s["code"], s["tags"], self.tag_clicked, lambda i = index: self.edit_snippet(i), lambda i = index: self.delete_snippet(i)))
         
         self.container_layout.addStretch()
     
@@ -140,6 +178,30 @@ class MainWindow(QWidget):
         if dialog.exec():
             new_data = dialog.get_data()
             self.data.append(new_data)
+            self.save_data()
+            self.render_cards(self.data)
+    
+    def tag_clicked(self, tag):
+        self.search.setText(tag)
+
+    def edit_snippet(self, index):
+        data = self.data[index]
+
+        dialog = AppDialog()
+        dialog.title_input.setText(data["title"])
+        dialog.code_input.setPlainText(data["code"])
+        dialog.tag_input.setText(" ".join(data["tags"]))
+
+        if dialog.exec():
+            updated = dialog.get_data()
+            self.data[index] = updated
+            self.save_data()
+            self.render_cards(self.data)
+
+    def delete_snippet(self, index):
+        reply = QMessageBox.question(self, "確認", "このスニペットを削除しますか？", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
+            del self.data[index]
             self.save_data()
             self.render_cards(self.data)
 
