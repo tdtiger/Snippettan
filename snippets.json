@@ -1,0 +1,17 @@
+[
+    {
+        "title": "hello_world.py",
+        "code": "print('Hello, World!')",
+        "tags": [
+            "python",
+            "beginner"
+        ]
+    },
+    {
+        "title": "count_down",
+        "code": "for i in range(10, 0):\n    print(i)",
+        "tags": [
+            "python"
+        ]
+    }
+]
