@@ -1,10 +1,26 @@
 [
     {
         "title": "hello_world.py",
+        "language": "python",
         "code": "print('Hello, World!')",
         "tags": [
-            "python",
             "beginner"
+        ]
+    },
+    {
+        "title": "python_array",
+        "language": "python",
+        "code": "a = map(int, input().split())",
+        "tags": [
+            "array"
+        ]
+    },
+    {
+        "title": "cpp_vector",
+        "language": "c++",
+        "code": "int n;\ncin >> n;\nvector<int> a(n);\nfor(int i = 0; i < n; i++)\n    cin >> a.at(i);",
+        "tags": [
+            "vector"
         ]
     }
 ]
