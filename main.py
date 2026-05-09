@@ -3,13 +3,13 @@ import json
 import re
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QScrollArea, QLineEdit, QTextEdit, QDialog, QPushButton, QMenu, QMessageBox, QComboBox
 from PyQt6.QtGui import QFont, QTextCursor, QSyntaxHighlighter, QTextCharFormat, QColor
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 
 LANG_KEYWORDS = {
     "python": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"],
     "c++": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char_8t", "char16_t", "char32_t", "class", "compl", "const", "constexpr", "const_cast", "continue", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"],
-    "javascript": ["function"],
-    "ruby": ["def"]
+    "javascript": ["break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "export", "extends", "false", "finally", "for", "function", "if", "import", "in", "instanceof", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while", "with"],
+    "ruby": ["BEGIN", "END", "alias", "and", "begin", "break", "case", "class", "def", "defined?", "do", "else", "elsif", "end", "ensure", "false", "for", "if", "in", "module", "next", "nil", "not", "or", "redo", "rescue", "retry", "return", "self", "super", "then", "true", "undef", "unless", "until", "when", "while", "yield", "__LINE__", "__FILE__", "__ENCODING__"]
 }
 
 class CodeEditor(QTextEdit):
@@ -59,12 +59,13 @@ class SimpleHighlighter(QSyntaxHighlighter):
         self.rehighlight()
         
 class SnippetCard(QFrame):
-    def __init__(self, title, code, tags, language, on_tag_click, on_edit, on_delete):
+    def __init__(self, title, code, tags, language, on_tag_click, on_edit, on_delete, on_copy):
         super().__init__()
         self.code = code
         self.on_tag_click = on_tag_click
         self.on_edit = on_edit
         self.on_delete = on_delete
+        self.on_copy = on_copy
         layout = QVBoxLayout()
 
         self.title = QLabel(title)
@@ -134,7 +135,7 @@ class SnippetCard(QFrame):
         if event.button() == Qt.MouseButton.LeftButton:
             clipboard = QApplication.clipboard()
             clipboard.setText(self.code)
-            print("Copied!")
+            self.on_copy()
         elif event.button() == Qt.MouseButton.RightButton:
             menu = QMenu()
             edit_action = menu.addAction("編集")
@@ -223,6 +224,14 @@ class MainWindow(QWidget):
         self.add_button.clicked.connect(self.open_add_dialog)
         layout.addWidget(self.add_button)
 
+        self.status_label = QLabel("")
+        self.status_label.setStyleSheet("""
+            color: #666;
+            padding: 6px;
+            border-top: 1px solid #ddd;
+        """)
+        layout.addWidget(self.status_label)
+
         self.setLayout(layout)
     
     def load_data(self):
@@ -244,7 +253,7 @@ class MainWindow(QWidget):
 
         for s in data:
             index = self.data.index(s)
-            self.container_layout.addWidget(SnippetCard(s["title"], s["code"], s["tags"], s.get("language", "python"),self.tag_clicked, lambda i = index: self.edit_snippet(i), lambda i = index: self.delete_snippet(i)))
+            self.container_layout.addWidget(SnippetCard(s["title"], s["code"], s["tags"], s.get("language", "python"),self.tag_clicked, lambda i = index: self.edit_snippet(i), lambda i = index: self.delete_snippet(i), lambda t = s["title"]: self.show_status(f"{t} をコピーしました")))
         
         self.container_layout.addStretch()
     
@@ -261,6 +270,7 @@ class MainWindow(QWidget):
             self.data.append(new_data)
             self.save_data()
             self.render_cards(self.data)
+            self.show_status(f"{new_data['title']} を追加しました")
     
     def tag_clicked(self, tag):
         self.search.setText(tag)
@@ -272,6 +282,7 @@ class MainWindow(QWidget):
         dialog.title_input.setText(data["title"])
         dialog.code_input.setPlainText(data["code"])
         dialog.tag_input.setText(" ".join(data["tags"]))
+        dialog.language_input.setCurrentText(data.get("language", "python"))
 
         dialog.update_language()
 
@@ -280,13 +291,21 @@ class MainWindow(QWidget):
             self.data[index] = updated
             self.save_data()
             self.render_cards(self.data)
+            self.show_status(f"{data['title']} を更新しました")
 
     def delete_snippet(self, index):
         reply = QMessageBox.question(self, "確認", "このスニペットを削除しますか？", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
+            title = self.data[index]["title"]
             del self.data[index]
             self.save_data()
             self.render_cards(self.data)
+            self.show_status(f"{title} を削除しました")
+    
+    def show_status(self, message):
+        self.status_label.setText(message)
+        QTimer.singleShot(2000, lambda: self.status_label.setText(""))
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

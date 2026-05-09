@@ -22,5 +22,11 @@
         "tags": [
             "vector"
         ]
+    },
+    {
+        "title": "3integers",
+        "code": "a, b, c = gets.split.map(&:to_i)",
+        "tags": [],
+        "language": "ruby"
     }
 ]
