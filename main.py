@@ -4,13 +4,7 @@ import re
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QScrollArea, QLineEdit, QTextEdit, QDialog, QPushButton, QMenu, QMessageBox, QComboBox
 from PyQt6.QtGui import QFont, QTextCursor, QSyntaxHighlighter, QTextCharFormat, QColor
 from PyQt6.QtCore import Qt, QTimer
-
-LANG_KEYWORDS = {
-    "python": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"],
-    "c++": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char_8t", "char16_t", "char32_t", "class", "compl", "const", "constexpr", "const_cast", "continue", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"],
-    "javascript": ["break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "export", "extends", "false", "finally", "for", "function", "if", "import", "in", "instanceof", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while", "with"],
-    "ruby": ["BEGIN", "END", "alias", "and", "begin", "break", "case", "class", "def", "defined?", "do", "else", "elsif", "end", "ensure", "false", "for", "if", "in", "module", "next", "nil", "not", "or", "redo", "rescue", "retry", "return", "self", "super", "then", "true", "undef", "unless", "until", "when", "while", "yield", "__LINE__", "__FILE__", "__ENCODING__"]
-}
+from syntax_rules import LANG_RULES
 
 class CodeEditor(QTextEdit):
     def keyPressEvent(self, event):
@@ -29,13 +23,17 @@ class SimpleHighlighter(QSyntaxHighlighter):
     def update_rules(self):
         self.rules = []
 
-        keywords = LANG_KEYWORDS.get(self.language, [])
+        lang_rules = LANG_RULES.get(self.language, {})
         keyword_format = QTextCharFormat()
         keyword_format.setForeground(QColor("#007acc"))
 
-        for word in keywords:
-            pattern = re.compile(rf"\b{word}\b")
-            self.rules.append((pattern, keyword_format))
+        for color, words in lang_rules.items():
+            fmt = QTextCharFormat()
+            fmt.setForeground(QColor(color))
+
+            for word in words:
+                pattern = re.compile(rf"\b{word}\b")
+                self.rules.append((pattern, fmt))
 
         string_format = QTextCharFormat()
         string_format.setForeground(QColor("#a31515"))
