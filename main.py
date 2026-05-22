@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLa
 from PyQt6.QtGui import QFont, QTextCursor, QSyntaxHighlighter, QTextCharFormat, QColor
 from PyQt6.QtCore import Qt, QTimer
 from syntax_rules import LANG_RULES
+from themes import LIGHT_THEME, DARK_THEME
 
 class CodeEditor(QTextEdit):
     def keyPressEvent(self, event):
@@ -90,12 +91,7 @@ class SnippetCard(QFrame):
 
         self.code_label = QLabel(code)
         self.code_label.setFont(QFont("Courier New"))
-        self.code_label.setStyleSheet("""
-            color: #333;
-            background: #f8f8f8;
-            padding: 6px;
-            border-radius: 4px;
-        """)
+        self.code_label.setObjectName("code")
         self.code_label.setWordWrap(True)
         layout.addWidget(self.code_label)
 
@@ -117,17 +113,6 @@ class SnippetCard(QFrame):
 
         self.setLayout(layout)
         self.setObjectName("card")
-        self.setStyleSheet("""
-            QFrame#card {
-                border: 1px solid #ddd;
-                border-radius: 10px;
-                padding: 10px;
-                background: white;
-            }
-            QFrame#card:hover{
-                background: #f5f5f5;
-            }
-        """)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -203,6 +188,14 @@ class MainWindow(QWidget):
         layout.addWidget(self.search)
 
         self.search.textChanged.connect(self.filter)
+
+        self.dark_mode = False
+        self.setStyleSheet(LIGHT_THEME)
+
+        self.theme_button = QPushButton("テーマ切替")
+        self.theme_button.clicked.connect(self.toggle_theme)
+        
+        layout.addWidget(self.theme_button)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -304,6 +297,13 @@ class MainWindow(QWidget):
         self.status_label.setText(message)
         QTimer.singleShot(2000, lambda: self.status_label.setText(""))
 
+    def toggle_theme(self):
+        self.dark_mode = not self.dark_mode
+
+        if self.dark_mode:
+            self.setStyleSheet(DARK_THEME)
+        else:
+            self.setStyleSheet(LIGHT_THEME)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
