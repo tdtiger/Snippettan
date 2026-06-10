@@ -47,12 +47,23 @@ QWidget{
     color: #abb2bf;
 }
 
-QLineEdit, QTextEdit{
+QLineEdit{
     background: #21252b;
-    color: #abb2bf
+    color: #abb2bf;
     border: 1px solid #3e4451;
     border-radius: 6px;
-    padding: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    min-height: 22px;
+}
+
+QTextEdit{
+    background: #21252b;
+    color: #abb2bf;
+    border: 1px solid #3e4451;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
 }
 
 QPushButton{
@@ -60,7 +71,8 @@ QPushButton{
     color: #abb2bf;
     border: none;
     border-radius: 6px;
-    padding: 6px 12px;
+    padding: 8px 12px;
+    font-size: 13px;
 }
 
 QPushButton:hover{
