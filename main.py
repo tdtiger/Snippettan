@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QScrollA
 from PyQt6.QtCore import QTimer
 from themes import LIGHT_THEME, DARK_THEME
 from widgets import SnippetCard, AppDialog
-from storage import load_data, save_data
+from storage import load_data, save_data, create_snippet
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -62,8 +62,17 @@ class MainWindow(QWidget):
                 widget.setParent(None)
 
         for s in data:
-            index = self.data.index(s)
-            self.container_layout.addWidget(SnippetCard(s["title"], s["code"], s["tags"], s.get("language", "python"),self.tag_clicked, lambda i = index: self.edit_snippet(i), lambda i = index: self.delete_snippet(i), lambda t = s["title"]: self.show_status(f"{t} をコピーしました")))
+            snippet_id = s["id"]
+            self.container_layout.addWidget(SnippetCard(s["title"], 
+                                                        s["code"], 
+                                                        s["tags"], 
+                                                        s.get("language", "python"), 
+                                                        self.tag_clicked, 
+                                                        lambda i = snippet_id: self.edit_snippet(i), 
+                                                        lambda i = snippet_id: self.delete_snippet(i), 
+                                                        lambda t = s["title"]: self.show_status(f"{t} をコピーしました")
+                                                        )
+                                            )
         
         self.container_layout.addStretch()
     
@@ -77,6 +86,7 @@ class MainWindow(QWidget):
 
         if dialog.exec():
             new_data = dialog.get_data()
+            new_data = create_snippet(new_data["title"], new_data["code"], new_data["tags"], new_data["language"])
             self.data.append(new_data)
             save_data(self.data)
             self.render_cards(self.data)
@@ -85,8 +95,11 @@ class MainWindow(QWidget):
     def tag_clicked(self, tag):
         self.search.setText(tag)
 
-    def edit_snippet(self, index):
-        data = self.data[index]
+    def edit_snippet(self, snippet_id):
+        index, data = self.find_snippet_by_id(snippet_id)
+        if data is None:
+            self.show_status("スニペットが見つかりません")
+            return
 
         dialog = AppDialog()
         dialog.title_input.setText(data["title"])
@@ -98,15 +111,26 @@ class MainWindow(QWidget):
 
         if dialog.exec():
             updated = dialog.get_data()
+            updated["id"] = snippet_id
+
             self.data[index] = updated
             save_data(self.data)
             self.render_cards(self.data)
             self.show_status(f"{data['title']} を更新しました")
 
-    def delete_snippet(self, index):
-        reply = QMessageBox.question(self, "確認", "このスニペットを削除しますか？", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+    def delete_snippet(self, snippet_id):
+        index, data = self.find_snippet_by_id(snippet_id)
+        if data is None:
+            self.show_status("スニペットが見つかりません")
+            return
+
+        reply = QMessageBox.question(self, 
+                                    "確認", 
+                                    "このスニペットを削除しますか？", 
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                                    )
         if reply == QMessageBox.StandardButton.Yes:
-            title = self.data[index]["title"]
+            title = data["title"]
             del self.data[index]
             save_data(self.data)
             self.render_cards(self.data)
@@ -123,6 +147,12 @@ class MainWindow(QWidget):
             self.setStyleSheet(DARK_THEME)
         else:
             self.setStyleSheet(LIGHT_THEME)
+    
+    def find_snippet_by_id(self, snippet_id):
+        for i, snippet in enumerate(self.data):
+            if snippet["id"] == snippet_id:
+                return i, snippet
+        return None, None
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
