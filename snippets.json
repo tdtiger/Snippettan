@@ -36,5 +36,13 @@
         "language": "ruby",
         "id": "92a59e8d-1274-4287-ac83-15d10e5fd183",
         "favorite": false
+    },
+    {
+        "id": "a0cbabea-9da9-4549-8702-ac8878981fd1",
+        "title": "とにかくインクルード",
+        "code": "#include<iostream>\n#include<vector>\n#include<algorithm>\n#include<cmath>\n#include<utility>\n\nint main(){\n    cout << \"test\" << endl;\n} ",
+        "tags": [],
+        "language": "c++",
+        "favorite": false
     }
 ]

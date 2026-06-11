@@ -4,6 +4,9 @@ import uuid
 # スニペットの保存ファイル
 DATA_FILE = "snippets.json"
 
+# 設定用ファイル
+SETTINGS_FILE = "settings.json"
+
 # JSONファイルからスニペットを読み取る
 def load_data():
     try:
@@ -44,3 +47,16 @@ def create_snippet(title, code, tags, language):
         "language": language,
         "favorite": False
     }
+
+# 設定をJSONファイルから読み込む
+def load_settings():
+    try:
+        with open(SETTINGS_FILE, "r", encoding = "utf-8") as f:
+            return json.load(f)
+    except:
+        return {"theme": "light"}
+    
+# 設定をJSONファイルに保存する
+def save_settings(settings):
+    with open(SETTINGS_FILE, "w", encoding = "utf-8") as f:
+        json.dump(settings, f, ensure_ascii = False, indent = 4)

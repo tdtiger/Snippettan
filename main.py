@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QScrollA
 from PyQt6.QtCore import QTimer
 from themes import LIGHT_THEME, DARK_THEME
 from widgets import SnippetCard, AppDialog
-from storage import load_data, save_data, create_snippet
+from storage import load_data, save_data, create_snippet, load_settings, save_settings
 
 # 本体となるクラス
 class MainWindow(QWidget):
@@ -11,7 +11,7 @@ class MainWindow(QWidget):
         super().__init__()
         self.setWindowTitle("すにぺったん")
         self.resize(500, 400)
-
+        
         layout = QVBoxLayout()
 
         self.search = QLineEdit()
@@ -27,8 +27,12 @@ class MainWindow(QWidget):
         self.language_filter.currentTextChanged.connect(self.filter)
         layout.addWidget(self.language_filter)
 
-        self.dark_mode = False
-        self.setStyleSheet(LIGHT_THEME)
+        self.settings = load_settings()
+        self.dark_mode = self.settings.get("theme") == "dark"
+        if self.dark_mode:
+            self.setStyleSheet(DARK_THEME)
+        else:
+            self.setStyleSheet(LIGHT_THEME)
 
         self.theme_button = QPushButton("テーマ切替")
         self.theme_button.clicked.connect(self.toggle_theme)
@@ -183,8 +187,12 @@ class MainWindow(QWidget):
 
         if self.dark_mode:
             self.setStyleSheet(DARK_THEME)
+            self.settings["theme"] = "dark"
         else:
             self.setStyleSheet(LIGHT_THEME)
+            self.settings["theme"] = "light"
+        
+        save_settings(self.settings)
     
     # IDを基にスニペットを検索する
     def find_snippet_by_id(self, snippet_id):
