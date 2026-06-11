@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QTextEdit, QFrame, QLabel, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
+# コードエディタを宣言するクラス
 class CodeEditor(QTextEdit):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Tab:
@@ -11,6 +12,7 @@ class CodeEditor(QTextEdit):
         else:
             super().keyPressEvent(event)
 
+# スニペットカードのクラス
 class SnippetCard(QFrame):
     def __init__(self, title, code, tags, language, on_tag_click, on_edit, on_delete, on_copy):
         super().__init__()
@@ -68,6 +70,8 @@ class SnippetCard(QFrame):
         self.setLayout(layout)
         self.setObjectName("card")
 
+    # カードがクリックされた時の動作を表す
+    # 左クリックでスニペットをコピー、右クリックで編集・削除
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             clipboard = QApplication.clipboard()
@@ -84,6 +88,7 @@ class SnippetCard(QFrame):
             elif action == delete_action:
                 self.on_delete()
 
+# スニペットの追加・編集用ダイアログのクラス
 class AppDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -117,6 +122,7 @@ class AppDialog(QDialog):
 
         self.highlighter = SimpleHighlighter(self.code_input.document(), "python")
 
+    # ダイアログの入力内容をテキストとして取得する
     def get_data(self):
         return {
             "title": self.title_input.text(),
@@ -125,6 +131,7 @@ class AppDialog(QDialog):
             "language": self.language_input.currentText()
         }
 
+    # ハイライト対象の言語を更新する
     def update_language(self):
         lang = self.language_input.currentText()
         self.highlighter.set_language(lang)

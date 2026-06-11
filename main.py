@@ -5,6 +5,7 @@ from themes import LIGHT_THEME, DARK_THEME
 from widgets import SnippetCard, AppDialog
 from storage import load_data, save_data, create_snippet
 
+# 本体となるクラス
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -55,6 +56,7 @@ class MainWindow(QWidget):
 
         self.setLayout(layout)
     
+    # カードを描画する
     def render_cards(self, data):
         for i in reversed(range(self.container_layout.count())):
             widget = self.container_layout.itemAt(i).widget()
@@ -76,11 +78,13 @@ class MainWindow(QWidget):
         
         self.container_layout.addStretch()
     
+    # 検索ワードに基づいてフィルタリングする
     def filter(self):
         keyword = self.search.text().lower()
         filtered = [s for s in self.data if keyword in s["title"].lower() or any(keyword in t.lower() for t in s["tags"])]
         self.render_cards(filtered)
     
+    # スニペットを追加するためのダイアログを開く
     def open_add_dialog(self):
         dialog = AppDialog()
 
@@ -92,9 +96,11 @@ class MainWindow(QWidget):
             self.render_cards(self.data)
             self.show_status(f"{new_data['title']} を追加しました")
     
+    # クリックされたタグを検索対象にする
     def tag_clicked(self, tag):
         self.search.setText(tag)
 
+    # スニペットを編集するためのダイアログを開く
     def edit_snippet(self, snippet_id):
         index, data = self.find_snippet_by_id(snippet_id)
         if data is None:
@@ -118,6 +124,7 @@ class MainWindow(QWidget):
             self.render_cards(self.data)
             self.show_status(f"{data['title']} を更新しました")
 
+    # スニペットを削除する
     def delete_snippet(self, snippet_id):
         index, data = self.find_snippet_by_id(snippet_id)
         if data is None:
@@ -136,10 +143,12 @@ class MainWindow(QWidget):
             self.render_cards(self.data)
             self.show_status(f"{title} を削除しました")
     
+    # 直前の動作を表示する
     def show_status(self, message):
         self.status_label.setText(message)
         QTimer.singleShot(2000, lambda: self.status_label.setText(""))
 
+    # ライトモードとダークモードを切り替える
     def toggle_theme(self):
         self.dark_mode = not self.dark_mode
 
@@ -148,6 +157,7 @@ class MainWindow(QWidget):
         else:
             self.setStyleSheet(LIGHT_THEME)
     
+    # IDを基にスニペットを検索する
     def find_snippet_by_id(self, snippet_id):
         for i, snippet in enumerate(self.data):
             if snippet["id"] == snippet_id:

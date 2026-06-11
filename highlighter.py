@@ -2,12 +2,15 @@ from syntax_rules import LANG_RULES
 from PyQt6.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor
 import re
 
+# 予約語、文字列、コメントを検出して色付けする。
+# 自動検出とかではなく、愚直に決め打ち。
 class SimpleHighlighter(QSyntaxHighlighter):
     def __init__(self, document, language = "python"):
         super().__init__(document)
         self.language = language
         self.update_rules()
 
+    # 選択されている言語が更新された時、ハイライトのルールも更新
     def update_rules(self):
         self.rules = []
 
@@ -33,12 +36,14 @@ class SimpleHighlighter(QSyntaxHighlighter):
         self.rules.append((re.compile(r"#.*"), comment_format)) 
         self.rules.append((re.compile(r"//.*"), comment_format))
 
+    # ハイライトする部分を検出して、対応するフォーマットを適用する
     def highlightBlock(self, text):
         for pattern, fmt in self.rules:
             for match in pattern.finditer(text):
                 start, end = match.span()
                 self.setFormat(start, end - start, fmt)
                 
+    # 言語を変更する
     def set_language(self, language):
         self.language = language
         self.update_rules()

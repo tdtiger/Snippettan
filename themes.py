@@ -1,3 +1,4 @@
+# テーマごとのCSS
 LIGHT_THEME = """
 QWidget{
     background: #f5f5f5;

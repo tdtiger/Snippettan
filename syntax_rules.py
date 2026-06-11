@@ -1,4 +1,4 @@
-
+# 各言語の構文ルールを定義する辞書
 PYTHON_RULES = {
     "#c678dd":[
         "if", "elif", "else", "for", "while", "break", "continue", "return", "yield", "try", "except", "finally", "raise", "with", "pass"
