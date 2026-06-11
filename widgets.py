@@ -14,22 +14,31 @@ class CodeEditor(QTextEdit):
 
 # スニペットカードのクラス
 class SnippetCard(QFrame):
-    def __init__(self, title, code, tags, language, on_tag_click, on_edit, on_delete, on_copy):
+    def __init__(self, title, code, tags, language, favorite, on_tag_click, on_edit, on_delete, on_copy, on_favorite):
         super().__init__()
         self.code = code
         self.on_tag_click = on_tag_click
         self.on_edit = on_edit
         self.on_delete = on_delete
         self.on_copy = on_copy
+        self.on_favorite = on_favorite
         layout = QVBoxLayout()
 
+        title_layout = QHBoxLayout()
         self.title = QLabel(title)
         self.title.setStyleSheet("""
             font-weight: bold;
             font-size: 16px;
             margin-bottom: 4px;
         """)
-        layout.addWidget(self.title)
+        self.favorite_label = QLabel("★" if favorite else "⭐︎")
+        self.favorite_label.setFixedWidth(15)
+        self.favorite_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.favorite_label.mousePressEvent = (lambda e: self.on_favorite())
+        self.favorite_label.setCursor(Qt.CursorShape.PointingHandCursor)
+        title_layout.addWidget(self.favorite_label)
+        title_layout.addWidget(self.title)
+        layout.addLayout(title_layout)
 
         self.language_label = QLabel(language)
         self.language_label.setStyleSheet("""

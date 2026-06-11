@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, QMessageBox
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, QMessageBox, QComboBox
 from PyQt6.QtCore import QTimer
 from themes import LIGHT_THEME, DARK_THEME
 from widgets import SnippetCard, AppDialog
@@ -19,6 +19,13 @@ class MainWindow(QWidget):
         layout.addWidget(self.search)
 
         self.search.textChanged.connect(self.filter)
+
+        self.language_filter = QComboBox()
+        self.language_filter.addItems(
+            ["すべて", "python", "c++", "javascript", "ruby"]
+        )
+        self.language_filter.currentTextChanged.connect(self.filter)
+        layout.addWidget(self.language_filter)
 
         self.dark_mode = False
         self.setStyleSheet(LIGHT_THEME)
@@ -69,19 +76,41 @@ class MainWindow(QWidget):
                                                         s["code"], 
                                                         s["tags"], 
                                                         s.get("language", "python"), 
+                                                        s.get("favorite", False),
                                                         self.tag_clicked, 
                                                         lambda i = snippet_id: self.edit_snippet(i), 
                                                         lambda i = snippet_id: self.delete_snippet(i), 
-                                                        lambda t = s["title"]: self.show_status(f"{t} をコピーしました")
+                                                        lambda t = s["title"]: self.show_status(f"{t} をコピーしました"),
+                                                        lambda sid = snippet_id: self.toggle_favorite(sid)
                                                         )
                                             )
         
         self.container_layout.addStretch()
     
     # 検索ワードに基づいてフィルタリングする
+    # タイトルの検索と、言語タグ両方にマッチしたもののみを表示する
     def filter(self):
         keyword = self.search.text().lower()
-        filtered = [s for s in self.data if keyword in s["title"].lower() or any(keyword in t.lower() for t in s["tags"])]
+        selected_language = self.language_filter.currentText()
+        filtered = []
+
+        for snippet in self.data:
+            keyword_match = (
+                keyword in snippet["title"].lower()
+                or any(
+                    keyword in tag.lower()
+                    for tag in snippet["tags"]
+                )
+            )
+
+            language_match = (
+                selected_language == "すべて"
+                or snippet.get("language") == selected_language
+            )
+
+            if keyword_match and language_match:
+                filtered.append(snippet)
+
         self.render_cards(filtered)
     
     # スニペットを追加するためのダイアログを開く
@@ -163,6 +192,20 @@ class MainWindow(QWidget):
             if snippet["id"] == snippet_id:
                 return i, snippet
         return None, None
+    
+    # スニペットのお気に入りのオン・オフを切り替える
+    def toggle_favorite(self, snippet_id):
+        index, data = self.find_snippet_by_id(snippet_id)
+
+        if data is None:
+            return
+        
+        data["favorite"] = not data["favorite"]
+        save_data(self.data)
+        self.render_cards(self.data)
+
+        state = "お気に入りに追加" if data["favorite"] else "お気に入り解除"
+        self.show_status(f"{data['title']} を{state}しました")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

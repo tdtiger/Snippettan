@@ -14,9 +14,14 @@ def load_data():
     
     changed = False
 
+    # アップデートに伴う旧データ整形
     for item in data:
         if "id" not in item:
             item["id"] = str(uuid.uuid4())
+            changed = True
+        
+        if "favorite" not in item:
+            item["favorite"] = False
             changed = True
 
     if changed:
@@ -36,5 +41,6 @@ def create_snippet(title, code, tags, language):
         "title": title,
         "code": code,
         "tags": tags,
-        "language": language
+        "language": language,
+        "favorite": False
     }
