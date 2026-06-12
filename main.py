@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, QMessageBox, QComboBox
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, QMessageBox, QComboBox
 from PyQt6.QtCore import QTimer
 from themes import LIGHT_THEME, DARK_THEME
 from widgets import SnippetCard, AppDialog
@@ -20,12 +20,25 @@ class MainWindow(QWidget):
 
         self.search.textChanged.connect(self.filter)
 
+        filter_layout = QHBoxLayout()
+
+        language_label = QLabel("言語：")
         self.language_filter = QComboBox()
-        self.language_filter.addItems(
-            ["すべて", "python", "c++", "javascript", "ruby"]
-        )
+        self.language_filter.addItems(["すべて", "python", "c++", "javascript", "ruby"])
         self.language_filter.currentTextChanged.connect(self.filter)
-        layout.addWidget(self.language_filter)
+
+        favorite_label = QLabel("表示：")
+        self.favorite_filter = QComboBox()
+        self.favorite_filter.addItems(["すべて", "お気に入りのみ"])
+        self.favorite_filter.currentTextChanged.connect(self.filter)
+
+        filter_layout.addWidget(language_label)
+        filter_layout.addWidget(self.language_filter)
+        filter_layout.addSpacing(20)
+        filter_layout.addWidget(favorite_label)
+        filter_layout.addWidget(self.favorite_filter)
+        filter_layout.addStretch()
+        layout.addLayout(filter_layout)
 
         self.settings = load_settings()
         self.dark_mode = self.settings.get("theme") == "dark"
@@ -96,6 +109,7 @@ class MainWindow(QWidget):
     def filter(self):
         keyword = self.search.text().lower()
         selected_language = self.language_filter.currentText()
+        selected_favorite = self.favorite_filter.currentText()
         filtered = []
 
         for snippet in self.data:
@@ -112,7 +126,12 @@ class MainWindow(QWidget):
                 or snippet.get("language") == selected_language
             )
 
-            if keyword_match and language_match:
+            favorite_match = (
+                selected_favorite == "すべて"
+                or snippet.get("favorite", False)
+            )
+
+            if keyword_match and language_match and favorite_match:
                 filtered.append(snippet)
 
         self.render_cards(filtered)
