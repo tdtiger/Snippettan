@@ -114,10 +114,12 @@ class MainWindow(QWidget):
 
         for snippet in self.data:
             keyword_match = (
-                keyword in snippet["title"].lower()
+                keyword in snippet.get("title", "").lower()
+                or keyword in snippet.get("code", "").lower()
+                or keyword in snippet.get("language", "").lower()
                 or any(
                     keyword in tag.lower()
-                    for tag in snippet["tags"]
+                    for tag in snippet.get("tags", [])
                 )
             )
 
