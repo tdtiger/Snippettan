@@ -1,5 +1,5 @@
 from highlighter import SimpleHighlighter
-from PyQt6.QtWidgets import QTextEdit, QFrame, QLabel, QVBoxLayout, QHBoxLayout, QDialog, QPushButton, QLineEdit, QComboBox, QMenu, QApplication
+from PyQt6.QtWidgets import QTextEdit, QFrame, QLabel, QVBoxLayout, QHBoxLayout, QDialog, QPushButton, QLineEdit, QComboBox, QMenu, QApplication, QMessageBox
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
@@ -124,7 +124,7 @@ class AppDialog(QDialog):
         layout.addWidget(self.tag_input)
 
         self.save_btn = QPushButton("保存")
-        self.save_btn.clicked.connect(self.accept)
+        self.save_btn.clicked.connect(self.validate_and_accept)
         layout.addWidget(self.save_btn)
 
         self.setLayout(layout)
@@ -134,7 +134,7 @@ class AppDialog(QDialog):
     # ダイアログの入力内容をテキストとして取得する
     def get_data(self):
         return {
-            "title": self.title_input.text(),
+            "title": self.title_input.text().strip(),
             "code": self.code_input.toPlainText(),
             "tags": self.tag_input.text().split(),
             "language": self.language_input.currentText()
@@ -144,3 +144,18 @@ class AppDialog(QDialog):
     def update_language(self):
         lang = self.language_input.currentText()
         self.highlighter.set_language(lang)
+
+    # 空データの登録を拒否する
+    def validate_and_accept(self):
+        title = self.title_input.text().strip()
+        code = self.code_input.toPlainText().strip()
+
+        if not title:
+            QMessageBox.warning(self, "入力エラー", "タイトルを入力してください。")
+            return
+        
+        if not code:
+            QMessageBox.warning(self, "入力エラー", "コードを入力してください。")
+            return
+
+        self.accept()
