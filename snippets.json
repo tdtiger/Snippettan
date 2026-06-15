@@ -1,11 +1,11 @@
 [
     {
         "title": "hello_world.py",
-        "language": "python",
         "code": "print('Hello, World!')",
         "tags": [
             "beginner"
         ],
+        "language": "python",
         "id": "19fdd13c-257c-4f31-a2fe-d909623ccb71",
         "favorite": true
     },

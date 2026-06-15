@@ -147,7 +147,7 @@ class MainWindow(QWidget):
             new_data = create_snippet(new_data["title"], new_data["code"], new_data["tags"], new_data["language"])
             self.data.append(new_data)
             save_data(self.data)
-            self.render_cards(self.data)
+            self.filter()
             self.show_status(f"{new_data['title']} を追加しました")
     
     # クリックされたタグを検索対象にする
@@ -172,10 +172,11 @@ class MainWindow(QWidget):
         if dialog.exec():
             updated = dialog.get_data()
             updated["id"] = snippet_id
+            updated["favorite"] = data.get("favorite", False)
 
             self.data[index] = updated
             save_data(self.data)
-            self.render_cards(self.data)
+            self.filter()
             self.show_status(f"{data['title']} を更新しました")
 
     # スニペットを削除する
@@ -194,7 +195,7 @@ class MainWindow(QWidget):
             title = data["title"]
             del self.data[index]
             save_data(self.data)
-            self.render_cards(self.data)
+            self.filter()
             self.show_status(f"{title} を削除しました")
     
     # 直前の動作を表示する
@@ -231,7 +232,7 @@ class MainWindow(QWidget):
         
         data["favorite"] = not data["favorite"]
         save_data(self.data)
-        self.render_cards(self.data)
+        self.filter()
 
         state = "お気に入りに追加" if data["favorite"] else "お気に入り解除"
         self.show_status(f"{data['title']} を{state}しました")
