@@ -32,11 +32,19 @@ class MainWindow(QWidget):
         self.favorite_filter.addItems(["すべて", "お気に入りのみ"])
         self.favorite_filter.currentTextChanged.connect(self.filter)
 
+        sort_label = QLabel("並び順：")
+        self.sort_filter = QComboBox()
+        self.sort_filter.addItems(["作成順", "タイトル順", "言語順", "お気に入り優先"])
+        self.sort_filter.currentTextChanged.connect(self.filter)
+
         filter_layout.addWidget(language_label)
         filter_layout.addWidget(self.language_filter)
         filter_layout.addSpacing(20)
         filter_layout.addWidget(favorite_label)
         filter_layout.addWidget(self.favorite_filter)
+        filter_layout.addSpacing(20)
+        filter_layout.addWidget(sort_label)
+        filter_layout.addWidget(self.sort_filter)
         filter_layout.addStretch()
         layout.addLayout(filter_layout)
 
@@ -106,10 +114,12 @@ class MainWindow(QWidget):
     
     # 検索ワードに基づいてフィルタリングする
     # タイトルの検索と、言語タグ両方にマッチしたもののみを表示する
+    # 並び替え機能も提供
     def filter(self):
         keyword = self.search.text().lower()
         selected_language = self.language_filter.currentText()
         selected_favorite = self.favorite_filter.currentText()
+        selected_sort = self.sort_filter.currentText()
         filtered = []
 
         for snippet in self.data:
@@ -135,6 +145,13 @@ class MainWindow(QWidget):
 
             if keyword_match and language_match and favorite_match:
                 filtered.append(snippet)
+        
+        if selected_sort == "タイトル順":
+            filtered.sort(key = lambda s: s.get("title", "").lower())
+        elif selected_sort == "言語順":
+            filtered.sort(key = lambda s: (s.get("language", ""), s.get("title", "").lower()))
+        elif selected_sort == "お気に入り優先":
+            filtered.sort(key = lambda s: (not s.get("favorite", False), s.get("title", "").lower()))
 
         self.render_cards(filtered)
     
