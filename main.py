@@ -113,9 +113,9 @@ class MainWindow(QWidget):
                                                         self.tag_clicked, 
                                                         lambda i = snippet_id: self.edit_snippet(i), 
                                                         lambda i = snippet_id: self.delete_snippet(i), 
-                                                        lambda t = s["title"]: self.show_status(f"{t} をコピーしました"),
-                                                        lambda sid = snippet_id: self.toggle_favorite(sid)
-                                                        )
+                                                        lambda sid = snippet_id: self.update_last_used(sid),
+                                                        lambda sid = snippet_id: self.toggle_favorite(sid),
+                                                    )
                                             )
         
         self.container_layout.addStretch()
@@ -230,7 +230,20 @@ class MainWindow(QWidget):
             save_data(self.data)
             self.filter()
             self.show_status(f"{title} を削除しました")
+
+    # スニペットの使用履歴を更新する
+    def update_last_used(self, snippet_id):
+        index, data = self.find_snippet_by_id(snippet_id)
+
+        if data is None:
+            self.show_status("スニペットが見つかりません")
+            return
+        
+        data["last_used"] = now_iso()
+        save_data(self.data)
     
+        self.show_status(f"{data['title']} をコピーしました")
+
     # 直前の動作を表示する
     def show_status(self, message):
         self.status_label.setText(message)
