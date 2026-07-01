@@ -7,7 +7,14 @@
         ],
         "language": "python",
         "id": "19fdd13c-257c-4f31-a2fe-d909623ccb71",
-        "favorite": true
+        "favorite": true,
+        "created_at": "2026-07-01T23:00:25",
+        "updated_at": "2026-07-01T23:00:25",
+        "last_used": null,
+        "author": "",
+        "is_remote": false,
+        "remote_id": null,
+        "version": 1
     },
     {
         "title": "python_array",
@@ -17,7 +24,14 @@
             "array"
         ],
         "id": "7e8023a0-4323-40ba-abd8-d85fd0159348",
-        "favorite": false
+        "favorite": false,
+        "created_at": "2026-07-01T23:00:25",
+        "updated_at": "2026-07-01T23:00:25",
+        "last_used": null,
+        "author": "",
+        "is_remote": false,
+        "remote_id": null,
+        "version": 1
     },
     {
         "title": "cpp_vector",
@@ -27,7 +41,14 @@
             "vector"
         ],
         "id": "b1f56c2b-e7aa-4f99-8ab5-712d2532473e",
-        "favorite": false
+        "favorite": false,
+        "created_at": "2026-07-01T23:00:25",
+        "updated_at": "2026-07-01T23:00:25",
+        "last_used": null,
+        "author": "",
+        "is_remote": false,
+        "remote_id": null,
+        "version": 1
     },
     {
         "title": "3integers",
@@ -35,7 +56,14 @@
         "tags": [],
         "language": "ruby",
         "id": "92a59e8d-1274-4287-ac83-15d10e5fd183",
-        "favorite": false
+        "favorite": false,
+        "created_at": "2026-07-01T23:00:25",
+        "updated_at": "2026-07-01T23:00:25",
+        "last_used": null,
+        "author": "",
+        "is_remote": false,
+        "remote_id": null,
+        "version": 1
     },
     {
         "id": "a0cbabea-9da9-4549-8702-ac8878981fd1",
@@ -43,6 +71,13 @@
         "code": "#include<iostream>\n#include<vector>\n#include<algorithm>\n#include<cmath>\n#include<utility>\n\nint main(){\n    cout << \"test\" << endl;\n} ",
         "tags": [],
         "language": "c++",
-        "favorite": false
+        "favorite": false,
+        "created_at": "2026-07-01T23:00:25",
+        "updated_at": "2026-07-01T23:00:25",
+        "last_used": null,
+        "author": "",
+        "is_remote": false,
+        "remote_id": null,
+        "version": 1
     }
 ]

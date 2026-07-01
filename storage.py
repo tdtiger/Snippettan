@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import datetime
 
 # スニペットの保存ファイル
 DATA_FILE = "snippets.json"
@@ -27,6 +28,34 @@ def load_data():
             item["favorite"] = False
             changed = True
 
+        if "created_at" not in item:
+            item["created_at"] = now_iso()
+            changed = True
+
+        if "updated_at" not in item:
+            item["updated_at"] = item["created_at"]
+            changed = True
+
+        if "last_used" not in item:
+            item["last_used"] = None
+            changed = True
+
+        if "author" not in item:
+            item["author"] = ""
+            changed = True
+
+        if "is_remote" not in item:
+            item["is_remote"] = False
+            changed = True
+
+        if "remote_id" not in item:
+            item["remote_id"] = None
+            changed = True
+
+        if "version" not in item:
+            item["version"] = 1
+            changed = True
+
     if changed:
         save_data(data)
 
@@ -39,13 +68,22 @@ def save_data(data):
 
 # 新規スニペットを作成する
 def create_snippet(title, code, tags, language):
+    now = now_iso()
+
     return{
         "id": str(uuid.uuid4()),
         "title": title,
         "code": code,
         "tags": tags,
         "language": language,
-        "favorite": False
+        "favorite": False,
+        "created_at": now,
+        "updated_at": now,
+        "last_used": None,
+        "author": "",
+        "is_remote": False,
+        "remote_id": None,
+        "version": 1
     }
 
 # 設定をJSONファイルから読み込む
@@ -60,3 +98,7 @@ def load_settings():
 def save_settings(settings):
     with open(SETTINGS_FILE, "w", encoding = "utf-8") as f:
         json.dump(settings, f, ensure_ascii = False, indent = 4)
+
+# 時間を取得
+def now_iso():
+    return datetime.now().isoformat(timespec = "seconds")

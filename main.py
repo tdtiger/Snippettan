@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLa
 from PyQt6.QtCore import QTimer
 from themes import LIGHT_THEME, DARK_THEME
 from widgets import SnippetCard, AppDialog
-from storage import load_data, save_data, create_snippet, load_settings, save_settings
+from storage import load_data, save_data, create_snippet, load_settings, save_settings, now_iso
 
 # 本体となるクラス
 class MainWindow(QWidget):
@@ -200,7 +200,13 @@ class MainWindow(QWidget):
             updated = dialog.get_data()
             updated["id"] = snippet_id
             updated["favorite"] = data.get("favorite", False)
-
+            updated["created_at"] = data.get("created_at")
+            updated["updated_at"] = now_iso()
+            updated["last_used"] = data.get("last_used")
+            updated["author"] = data.get("author", "")
+            updated["is_remote"] = data.get("is_remote")
+            updated["remote_id"] = data.get("remote_id")
+            updated["version"] = data.get("version", 1)
             self.data[index] = updated
             save_data(self.data)
             self.filter()
