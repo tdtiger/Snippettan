@@ -10,7 +10,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("すにぺったん")
-        self.resize(500, 400)
+        self.resize(700, 600)
         
         layout = QVBoxLayout()
 
@@ -69,14 +69,20 @@ class MainWindow(QWidget):
 
         self.data = load_data()
 
-        self.render_cards(self.data)
-
         scroll.setWidget(container)
         layout.addWidget(scroll)
 
         self.add_button = QPushButton("スニペット追加")
         self.add_button.clicked.connect(self.open_add_dialog)
         layout.addWidget(self.add_button)
+
+        self.count_label = QLabel("")
+        self.count_label.setStyleSheet("""
+            color: #666;
+            padding: 4px 6px;
+            font-size: 12px;
+        """)
+        layout.addWidget(self.count_label)
 
         self.status_label = QLabel("")
         self.status_label.setStyleSheet("""
@@ -85,6 +91,8 @@ class MainWindow(QWidget):
             border-top: 1px solid #ddd;
         """)
         layout.addWidget(self.status_label)
+
+        self.render_cards(self.data)
 
         self.setLayout(layout)
     
@@ -111,6 +119,8 @@ class MainWindow(QWidget):
                                             )
         
         self.container_layout.addStretch()
+
+        self.count_label.setText(f"{len(data)}件表示中 / 全{len(self.data)}件")
     
     # 検索ワードに基づいてフィルタリングする
     # タイトルの検索と、言語タグ両方にマッチしたもののみを表示する
