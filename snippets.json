@@ -14,7 +14,8 @@
         "author": "",
         "is_remote": false,
         "remote_id": null,
-        "version": 1
+        "version": 1,
+        "use_count": 0
     },
     {
         "title": "python_array",
@@ -31,7 +32,8 @@
         "author": "",
         "is_remote": false,
         "remote_id": null,
-        "version": 1
+        "version": 1,
+        "use_count": 0
     },
     {
         "title": "cpp_vector",
@@ -48,7 +50,8 @@
         "author": "",
         "is_remote": false,
         "remote_id": null,
-        "version": 1
+        "version": 1,
+        "use_count": 0
     },
     {
         "title": "3integers",
@@ -59,11 +62,12 @@
         "favorite": false,
         "created_at": "2026-07-01T23:00:25",
         "updated_at": "2026-07-01T23:00:25",
-        "last_used": null,
+        "last_used": "2026-07-03T23:37:40",
         "author": "",
         "is_remote": false,
         "remote_id": null,
-        "version": 1
+        "version": 1,
+        "use_count": 5
     },
     {
         "id": "a0cbabea-9da9-4549-8702-ac8878981fd1",
@@ -78,6 +82,7 @@
         "author": "",
         "is_remote": false,
         "remote_id": null,
-        "version": 1
+        "version": 1,
+        "use_count": 0
     }
 ]

@@ -34,7 +34,7 @@ class MainWindow(QWidget):
 
         sort_label = QLabel("並び順：")
         self.sort_filter = QComboBox()
-        self.sort_filter.addItems(["作成順", "タイトル順", "言語順", "お気に入り優先"])
+        self.sort_filter.addItems(["作成順", "タイトル順", "言語順", "お気に入り優先", "最近使った順", "使用回数順"])
         self.sort_filter.currentTextChanged.connect(self.filter)
 
         filter_layout.addWidget(language_label)
@@ -113,7 +113,7 @@ class MainWindow(QWidget):
                                                         self.tag_clicked, 
                                                         lambda i = snippet_id: self.edit_snippet(i), 
                                                         lambda i = snippet_id: self.delete_snippet(i), 
-                                                        lambda sid = snippet_id: self.update_last_used(sid),
+                                                        lambda sid = snippet_id: self.update_snippet_usage(sid),
                                                         lambda sid = snippet_id: self.toggle_favorite(sid),
                                                     )
                                             )
@@ -162,7 +162,10 @@ class MainWindow(QWidget):
             filtered.sort(key = lambda s: (s.get("language", ""), s.get("title", "").lower()))
         elif selected_sort == "お気に入り優先":
             filtered.sort(key = lambda s: (not s.get("favorite", False), s.get("title", "").lower()))
-
+        elif selected_sort == "最近使った順":
+            filtered.sort(key = lambda s: s.get("last_used") or "", reverse = True)
+        elif selected_sort == "使用回数順":
+            filtered.sort(key = lambda s: s.get("use_count", 0), reverse = True)
         self.render_cards(filtered)
     
     # スニペットを追加するためのダイアログを開く
@@ -232,7 +235,7 @@ class MainWindow(QWidget):
             self.show_status(f"{title} を削除しました")
 
     # スニペットの使用履歴を更新する
-    def update_last_used(self, snippet_id):
+    def update_snippet_usage(self, snippet_id):
         index, data = self.find_snippet_by_id(snippet_id)
 
         if data is None:
@@ -240,7 +243,10 @@ class MainWindow(QWidget):
             return
         
         data["last_used"] = now_iso()
+        data["use_count"] = data.get("use_count", 0) + 1
+
         save_data(self.data)
+        self.filter()
     
         self.show_status(f"{data['title']} をコピーしました")
 

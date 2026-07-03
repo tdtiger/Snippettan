@@ -36,6 +36,10 @@ def load_data():
             item["updated_at"] = item["created_at"]
             changed = True
 
+        if "used_count" not in item:
+            item["use_count"] = 0
+            changed = True
+
         if "last_used" not in item:
             item["last_used"] = None
             changed = True
@@ -79,6 +83,7 @@ def create_snippet(title, code, tags, language):
         "favorite": False,
         "created_at": now,
         "updated_at": now,
+        "use_count": 0,
         "last_used": None,
         "author": "",
         "is_remote": False,
