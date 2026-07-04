@@ -1,12 +1,12 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, QMessageBox, QComboBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, QMessageBox, QComboBox
 from PyQt6.QtCore import QTimer
 from themes import LIGHT_THEME, DARK_THEME
 from widgets import SnippetCard, AppDialog
 from storage import load_data, save_data, create_snippet, load_settings, save_settings, now_iso
 
 # 本体となるクラス
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("すにぺったん")
@@ -94,8 +94,12 @@ class MainWindow(QWidget):
 
         self.render_cards(self.data)
 
-        self.setLayout(layout)
-    
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+        self.create_menu_bar()
+
     # カードを描画する
     def render_cards(self, data):
         for i in reversed(range(self.container_layout.count())):
@@ -288,6 +292,50 @@ class MainWindow(QWidget):
 
         state = "お気に入りに追加" if data["favorite"] else "お気に入り解除"
         self.show_status(f"{data['title']} を{state}しました")
+
+    def create_menu_bar(self):
+        menu_bar = self.menuBar()
+
+        file_menu = menu_bar.addMenu("ファイル")
+        view_menu = menu_bar.addMenu("表示")
+        help_menu = menu_bar.addMenu("ヘルプ")
+
+        new_action = file_menu.addAction("新規スニペット")
+        new_action.triggered.connect(self.open_add_dialog)
+
+        file_menu.addSeparator()
+
+        import_action = file_menu.addAction("インポート…")
+        import_action.triggered.connect(self.import_snippets)
+
+        export_action = file_menu.addAction("エクスポート…")
+        export_action.triggered.connect(self.export_snippets)
+
+        file_menu.addSeparator()
+
+        quit_action = file_menu.addAction("終了")
+        quit_action.triggered.connect(self.close)
+
+        theme_action = view_menu.addAction("テーマ切替")
+        theme_action.triggered.connect(self.toggle_theme)
+
+        shortcut_action = help_menu.addAction("ショートカット一覧")
+        shortcut_action.triggered.connect(self.show_shortcuts)
+
+        about_action = help_menu.addAction("このアプリについて")
+        about_action.triggered.connect(self.show_about)
+
+    def import_snippets(self):
+        self.show_status("インポート機能はまだ実装されていません")
+
+    def export_snippets(self):
+        self.show_status("エクスポート機能はまだ実装されていません")
+
+    def show_shortcuts(self):
+        self.show_status("ショートカット一覧はまだ実装されていません")
+
+    def show_about(self):
+        QMessageBox.information(self, "このアプリについて", "すにぺったん\nローカルで動作するスニペット管理アプリケーションです。")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
